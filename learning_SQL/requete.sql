@@ -1,13 +1,78 @@
-show tables; --montre le nombre de table dans la DB
+show tables; --montre le nombre de table dans la DB sakila
 
+
+--Afficher le nombre de colonne dans la table actor, staff et address
+SHOW columns FROM actor; 
+SHOW columns FROM staff;
+--ou bien
 DESCRIBE actor;
-DESCRIBE staff;
-DESCRIBE address;
-DESCRIBE payment;
-DESCRIBE film;
-DESCRIBE film_actor;
-DESCRIBE inventory;
-DESCRIBE customer; --affiche les différentes table et leur type
+
+
+--Combien y'a t'il d'acteurs, de staff de film...
+SELECT count(*) from actor;
+SELECT count(*) from staff;
+
+
+--Afficher le contenu des tables actor et staff
+SELECT * FROM actor;
+
+SELECT staff_id, first_name, last_name
+FROM staff;
+
+
+--Afficher dans une nouvelle colonne 'Actor Name'
+--le first_name et le last_name (ensemble) ?
+SELECT CONCAT(first_name, last_name) as "Actor_name" 
+FROM actor
+LIMIT 10;
+
+SELECT actor_id, CONCAT(first_name, last_name) as "Actor_name" 
+FROM actor
+LIMIT 10 OFFSET 20; --affiche a parti du 21éme
+
+
+--Créer une nouvelle colonne middle_name
+--positionné après first_name en lui attribuant les mêmes propriétés
+--que la colonne first_name. La supp ?
+ALTER TABLE actor 
+ADD middle_name VARCHAR(45) NOT NULL AFTER first_name;
+--Pour supprimer la colonnes middle_name
+ALTER TABLE actor
+DROP middle_name;
+
+
+--Trouver l'actor_id et last_name d'un acteur dont on connaît
+--que le prénom 'Scarlett' (aussi un autre acteur : 'Joe') ?
+SELECT actor_id, last_name 
+FROM actor WHERE first_name = 'Scarlett';
+
+SELECT actor_id, last_name 
+FROM actor WHERE first_name = 'joe' OR first_name = 'Scarlett';
+--ou bien
+SELECT actor_id, last_name 
+FROM actor WHERE first_name IN ('joe', 'scarlett');
+
+
+--Lister tous les acteurs dont le last_name contient les lettres 'GEN'
+--(aussi un autre cas : '%LI%');
+--trié par last_name d'abord et par first_name ensuite ?
+SELECT * FROM actor WHERE last_name LIKE '%GEN%'
+
+SELECT * 
+FROM actor 
+WHERE last_name 
+LIKE '%GEN%' OR '%LI%' 
+ORDER BY last_name, first_name;
+
+
+
+
+
+
+
+
+
+
 
 SELECT COUNT(*) 
 FROM actor; --Compte le nombre de ligne dans la table actor.
