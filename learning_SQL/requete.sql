@@ -61,18 +61,62 @@ SELECT * FROM actor WHERE last_name LIKE '%GEN%'
 SELECT * 
 FROM actor 
 WHERE last_name 
-LIKE '%GEN%' OR '%LI%' 
+LIKE '%GEN%' OR last_name LIKE '%LI%' 
 ORDER BY last_name, first_name;
 
 
+--A l'aide d'une seule et même Qry, trouver l'id des pays suivants
+--l'Afghanistan, Bangladesh, and China ?
+SELECT country_id 
+FROM country 
+WHERE country IN ('Afghanistan', 'Bangladesh', 'China');
 
 
+--Trouver les films qui commencent soit par la lettre K soit par la lettre Q ?
+SELECT film_id, title, description 
+FROM film 
+WHERE title LIKE 'Q%' OR title LIKE 'k%';
 
 
+--Combien y'a-t-il d'acteurs dont le nom de famille est 'JOHANSSON' ?
+SELECT count(*) 
+FROM actor 
+WHERE last_name = 'JOHANSSON';
 
 
+--Pourquoi si je tappe 'JoHansSon' dans la dernière Qry au lieu de 'JOHANSSON',
+--j'obtiens les mêmes résultats ?
+SELECT count(*) 
+FROM actor 
+WHERE last_name = 'JOHanSSon';
 
 
+--Le vrai nom de l'acteur 'HARPO WILLIAMS' est GROUCHO WILLIAMS. 
+--Corriger cette erreur de saisi dans la DB. 172
+
+UPDATE actor 
+SET first_name = 'HARPO' --la modif a apporter
+WHERE first_name = 'GROUCHO' AND last_name = 'WILLIAMS'
+
+
+--Quelles sont les acteurs qui portent le même nom de famille ? 
+--N.B : Comme résultat, fournir un tableau qui indique
+--le nbre de fois qu'un nom d'acteurs se répète 
+--(sens de tri : nbr de répétition => ordre décroissant ; 
+--last_name => ordre croissant) ? 
+--Q : Quelle est le nom de famille qui se répète le plus ?
+SELECT actor_id, first_name, last_name 
+FROM actor
+GROUP BY last_name
+HAVING count(*)> 1;
+ 
+SELECT count() 
+FROM actor 
+WHERE last_name IN (
+					SELECT actor_id, first_name, last_name 
+					FROM actor
+					GROUP BY last_name
+					HAVING count(*)> 1);
 
 SELECT COUNT(*) 
 FROM actor; --Compte le nombre de ligne dans la table actor.
