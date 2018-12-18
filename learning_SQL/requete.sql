@@ -109,14 +109,183 @@ SELECT actor_id, first_name, last_name
 FROM actor
 GROUP BY last_name
 HAVING count(*)> 1;
+
+--affiche un nombre rond
+SELECT count(*) as nb
+FROM (SELECT actor_id, last_name
+		FROM actor
+		GROUP BY last_name
+		HAVING count(last_name) > 1) src;
+
+
+--Requettes a améliorer: 
+--SELECT last_name, count(last_name) 
+--FROM actor 
+--WHERE last_name IN (
+--					SELECT actor_id, first_name, last_name 
+--					FROM actor
+--					GROUP BY last_name
+--					HAVING count(last_name)> 1);
+
+
+--Quelle est le nom de famille qui se répète le plus ?
+SELECT actor_id, first_name, last_name, count(*)
+FROM actor
+GROUP BY last_name
+HAVING count(*) > 4
+
+--Tjrs, dans la table actor, combien de noms de famille d'acteurs distincts et les lister ?
+SELECT count(*)
+FROM(
+	SELECT DISTINCT last_name
+	from actor) AS src;
+
+SELECT count(DISTINCT last_name)
+from actor;
+
+--Quelles sont les last_name qui sont partagés par au moins deux acteurs dans la DB ?
+SELECT 	actor_id, last_name, count(*)
+FROM actor
+GROUP BY last_name
+HAVING count(*) > 1
+
+
+--On souhaite afficher l'ensemble des col de la table actor avec un Distinct sur last_name ? Pourquoi les 2 Qry suivantes ne marchent pas :
+-- * SELECT actor_id, actor_name, DISTINCT last_name FROM actor ;
+-- * SELECT Distinct * FROM actor ;
+
+
+
+--Récrire la dernière Qry avec un GROUP BY (au lieu DISTINCT) ?
+SELECT actor_id, first_name, last_name
+FROM actor
+GROUP BY last_name;
+
+--Quelles sont les noms de famille d'acteurs qui ne se répètent ; sens du tri => alphabétique sur last_name ?
+SELECT actor_id, last_name, count(*)
+	FROM actor
+	GROUP BY last_name
+	HAVING count(*) = 1);
+	
+--la même question mais renvoi un nombre rond.
+SELECT count(*) AS nombre
+FROM(
+	SELECT actor_id, last_name, count(*)
+	FROM actor
+	GROUP BY last_name
+	HAVING count(*) = 1) AS src;
+
+
+--En utilisant un JOIN, afficher first_name, 
+--last_name et address des membres du staff ?
+SELECT first_name, last_name, address
+FROM staff
+INNER JOIN address
+ON staff.address_id = address.address_id;
+
+
+--En utilisant un JOIN et BETWEEN, afficher le amount touché
+--par chaque membre du staff avant de partir en vacances : aôut 2005 ?
+SELECT staff.staff_id, sum(amount)
+FROM staff
+JOIN payment
+ON staff.staff_id = payment.staff_id
+WHERE payment_date BETWEEN '2004-09-01' AND  '2005-08-01'
+GROUP BY staff.staff_id;
+
+
+SELECT payment_date, amount
+FROM payment
+WHERE payment_date like '%2005-08%'
+GROUP BY payment_date;
+
  
-SELECT count() 
-FROM actor 
-WHERE last_name IN (
-					SELECT actor_id, first_name, last_name 
-					FROM actor
-					GROUP BY last_name
-					HAVING count(*)> 1);
+--Combien d'acteurs ont joué dans chaque film ?
+SELECT actor.actor_id, film.film_id, title, count(*)
+FROM actor,
+	film_actor,
+	film
+WHERE actor.actor_id = film_actor.actor_id
+	AND film.film_id = film_actor.film_id
+GROUP BY title
+LIMIT 45;
+
+
+--Combien de copies de film Hunchback Impossible est dispo en inventory ?
+SELECT inventory_id, film.film_id, title, count(*) AS 'Quantité disponible'
+FROM film
+INNER JOIN inventory
+ON film.film_id = inventory.film_id
+WHERE title = 'Hunchback Impossible'
+GROUP BY title
+LIMIT 20;
+
+
+--Combien chaque client a payé au total ?
+SELECT customer.customer_id, payment_id, sum(amount) AS 'Montant_total_payé'
+FROM customer
+JOIN payment
+ON customer.customer_id = payment.customer_id
+GROUP BY customer_id
+LIMIT 20;
+
+
+--A l'aide d'une sous-requêtte subqueries, 
+--afficher les title des films dont la langue est l'Anglais 
+--et qui commencent soit par la lettre K soit par la lettre Q ?
+SELECT film_id, title, name
+FROM language
+JOIN film
+ON language.language_id = film.language_id
+WHERE name = 'English' AND (title LIKE 'K%' OR title LIKE 'Q%')
+LIMIT 35;
+
+
+--A l'aide d'une sous-requêtte, 
+--quelles sont les acteurs qui ont joué dans le film Alone Trip.
+SELECT actor.actor_id, last_name, first_name, title
+FROM actor,
+	film,
+	film_actor
+WHERE actor.actor_id = film_actor.actor_id
+	AND film.film_id = film_actor.film_id
+	AND title = 'Alone Trip'
+LIMIT 15;
+
+
+--En utilisant un JOIN, créer un mailing list d'email de tous les clients canadiens
+--pour les fins Marketing (ds la DB) ?	
+SELECT customer_id, last_name, country.country_id, customer.email
+FROM customer,
+	address,
+	city,
+	country
+WHERE customer.address_id = address.address_id
+	AND address.city_id = city.city_id
+	AND city.country_id = country.country_id
+	AND country = 'Canada'
+LIMIT 10;
+
+--Quelles sont les films de type Familiy (Noël c'est très bientôt) ?
+SELECT film.film_id, title
+FROM film,
+	film_category,
+	category
+WHERE film.film_id = film_category.film_id
+	AND film_category.category_id = category.category_id
+	AND category.name = 'Family'
+LIMIT 10
+
+
+--Quelles sont les films qui se louent le plus ?
+SELECT film_id, title
+FROM film,
+	inventory,
+	rental
+WHERE film.film_id = inventory.film_id
+	inventory.inventory_id = rental.rental_id
+LIMIT 10;
+
 
 SELECT COUNT(*) 
 FROM actor; --Compte le nombre de ligne dans la table actor.
