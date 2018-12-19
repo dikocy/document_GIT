@@ -1,6 +1,9 @@
 show tables; --montre le nombre de table dans la DB sakila
 
 
+select last_name from actor group by last_name
+
+
 --Afficher le nombre de colonne dans la table actor, staff et address
 SHOW columns FROM actor; 
 SHOW columns FROM staff;
@@ -104,20 +107,57 @@ WHERE first_name = 'GROUCHO' AND last_name = 'WILLIAMS'
 --le nbre de fois qu'un nom d'acteurs se répète 
 --(sens de tri : nbr de répétition => ordre décroissant ; 
 --last_name => ordre croissant) ? 
---Q : Quelle est le nom de famille qui se répète le plus ?
-SELECT actor_id, first_name, last_name 
+SELECT actor_id, first_name, last_name, count(*) 
 FROM actor
 GROUP BY last_name
-HAVING count(*)> 1;
- 
-SELECT count() 
+HAVING count(*)> 1
+ORDER BY count(*) DESC, last_name ;
+
+-- Pour afficher le compte d'acteur qui porte le même nom de famille. 
+SELECT count(*) 
 FROM actor 
 WHERE last_name IN (
-					SELECT actor_id, first_name, last_name 
+					SELECT last_name, count(*)
+					FROM actor
+					GROUP by last_name
+					HAVING count(*)> 1)
+					
+--Q : Quelle est le nom de famille qui se répète le plus ?
+SELECT actor_id, first_name, last_name, count(*) 
+FROM actor
+GROUP BY last_name
+HAVING count(*)> 4
+
+
+-- Tjrs, dans la table actor, 
+--combien de noms de famille d'acteurs distincts et les lister ?
+SELECT count(*)
+FROM actor
+WHERE last_name IN(
+					SELECT DISTINCT last_name, count(*)
 					FROM actor
 					GROUP BY last_name
-					HAVING count(*)> 1);
+					ORDER BY count(*)
+ 
+				
+--Quelles sont les last_name qui sont partagés
+--par au moins deux acteurs dans la DB ?			
+						
+				
+	
 
+
+
+
+
+
+
+
+
+
+
+	
+				
 SELECT COUNT(*) 
 FROM actor; --Compte le nombre de ligne dans la table actor.
 
